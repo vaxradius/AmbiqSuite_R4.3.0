@@ -1,0 +1,219 @@
+   text	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	bin/sec_ecc.o
+   1996	      0	      0	   1996	    7cc	bin/attc_disc.o
+   2490	      0	    176	   2666	    a6a	bin/attc_main.o
+   2301	      0	      0	   2301	    8fd	bin/attc_proc.o
+   1140	      0	      0	   1140	    474	bin/attc_read.o
+    858	      0	     12	    870	    366	bin/attc_sign.o
+    534	      0	      0	    534	    216	bin/attc_write.o
+   1258	      0	     24	   1282	    502	bin/atts_ccc.o
+    960	      0	     16	    976	    3d0	bin/atts_csf.o
+    712	      0	   1288	   2000	    7d0	bin/atts_dyn.o
+   1894	      0	     84	   1978	    7ba	bin/atts_ind.o
+   2555	     68	     25	   2648	    a58	bin/atts_main.o
+   1756	      0	      0	   1756	    6dc	bin/atts_proc.o
+   3718	      0	      0	   3718	    e86	bin/atts_read.o
+   1140	      0	     56	   1196	    4ac	bin/atts_sign.o
+   1736	      0	      0	   1736	    6c8	bin/atts_write.o
+   1238	     16	    128	   1382	    566	bin/att_main.o
+    302	      0	      0	    302	    12e	bin/att_uuid.o
+   2555	      5	     17	   2577	    a11	bin/fit_main.o
+     36	      0	      0	     36	     24	bin/wsf_assert.o
+    756	      0	      7	    763	    2fb	bin/wsf_buf.o
+   2290	      0	    328	   2618	    a3a	bin/wsf_efs.o
+    184	     16	      0	    200	     c8	bin/wsf_math.o
+    304	      0	      0	    304	    130	bin/wsf_msg.o
+    880	      0	     65	    945	    3b1	bin/wsf_os.o
+    442	      0	      0	    442	    1ba	bin/wsf_queue.o
+    780	      0	     16	    796	    31c	bin/wsf_timer.o
+      0	      0	      0	      0	      0	bin/wsf_trace.o
+   1806	      4	     21	   1831	    727	bin/port.o
+   1788	      0	     52	   1840	    730	bin/dm_adv.o
+   7220	      0	     38	   7258	   1c5a	bin/dm_adv_ae.o
+   1178	      0	      1	   1179	    49b	bin/dm_adv_leg.o
+   5024	      0	    196	   5220	   1464	bin/dm_conn.o
+   1928	      0	      9	   1937	    791	bin/dm_conn_cte.o
+    296	      0	      0	    296	    128	bin/dm_conn_master.o
+    370	      0	      0	    370	    172	bin/dm_conn_master_ae.o
+    214	      0	      0	    214	     d6	bin/dm_conn_master_leg.o
+    458	      0	      0	    458	    1ca	bin/dm_conn_slave.o
+    204	      0	      0	    204	     cc	bin/dm_conn_slave_ae.o
+    164	      0	      0	    164	     a4	bin/dm_conn_slave_leg.o
+    290	      0	     12	    302	    12e	bin/dm_conn_sm.o
+    956	      0	      4	    960	    3c0	bin/dm_dev.o
+   1708	      0	     40	   1748	    6d4	bin/dm_dev_priv.o
+   1080	     56	     24	   1160	    488	bin/dm_main.o
+    974	      0	      0	    974	    3ce	bin/dm_past.o
+    550	      0	      0	    550	    226	bin/dm_phy.o
+   1762	      0	     26	   1788	    6fc	bin/dm_priv.o
+    618	      0	     32	    650	    28a	bin/dm_scan.o
+   1010	      1	      1	   1012	    3f4	bin/dm_scan_ae.o
+    792	      0	      0	    792	    318	bin/dm_scan_leg.o
+    938	      0	      8	    946	    3b2	bin/dm_sec.o
+    924	      0	    100	   1024	    400	bin/dm_sec_lesc.o
+    294	      0	      0	    294	    126	bin/dm_sec_master.o
+    308	      0	      0	    308	    134	bin/dm_sec_slave.o
+   1938	      0	     14	   1952	    7a0	bin/dm_sync_ae.o
+    132	     64	      0	    196	     c4	bin/am_resources.o
+    112	      0	      0	    112	     70	bin/ble_freertos_fit_lp.o
+    560	     16	   4628	   5204	   1454	bin/radio_task.o
+    220	      0	      4	    224	     e0	bin/rtos.o
+   5916	      0	     28	   5944	   1738	bin/hci_cmd.o
+   3532	      0	      0	   3532	    dcc	bin/hci_cmd_ae.o
+   1026	      0	      0	   1026	    402	bin/hci_cmd_cte.o
+    744	      0	      0	    744	    2e8	bin/hci_cmd_past.o
+    348	      0	      0	    348	    15c	bin/hci_cmd_phy.o
+   2480	      4	    148	   2632	    a48	bin/hci_core.o
+    674	      0	      0	    674	    2a2	bin/hci_core_ps.o
+   9013	      0	     24	   9037	   234d	bin/hci_evt.o
+    874	      0	     17	    891	    37b	bin/hci_tr.o
+    400	      0	      0	    400	    190	bin/hci_vs_ae.o
+    264	      0	      0	    264	    108	bin/sec_aes.o
+    252	      0	      0	    252	     fc	bin/sec_aes_rev.o
+   2004	      0	      0	   2004	    7d4	bin/sec_ccm_hci.o
+    928	      0	      0	    928	    3a0	bin/sec_cmac_hci.o
+      0	      0	      0	      0	      0	bin/sec_ecc_debug.o
+    432	      0	      0	    432	    1b0	bin/sec_ecc_hci.o
+    760	      0	     80	    840	    348	bin/sec_main.o
+   1350	      0	     44	   1394	    572	bin/hrps_main.o
+    257	      0	     13	    270	    10e	bin/bda.o
+    964	      0	      0	    964	    3c4	bin/bstream.o
+    130	      0	      0	    130	     82	bin/calc128.o
+   1104	      0	      0	   1104	    450	bin/crc32.o
+   1415	      0	      0	   1415	    587	bin/print.o
+   1615	     32	    120	   1767	    6e7	bin/terminal.o
+    322	      0	      0	    322	    142	bin/wstr.o
+   6614	      0	    580	   7194	   1c1a	bin/l2c_coc.o
+   1100	      0	     40	   1140	    474	bin/l2c_main.o
+    566	      0	      0	    566	    236	bin/l2c_master.o
+   1030	      0	     24	   1054	    41e	bin/l2c_slave.o
+    148	      0	     28	    176	     b0	bin/hci_main.o
+     63	     16	      0	     79	     4f	bin/cfg_stack.o
+   1232	      0	      0	   1232	    4d0	bin/smpi_act.o
+   1386	      0	      0	   1386	    56a	bin/smpi_sc_act.o
+   1799	      0	      0	   1799	    707	bin/smpi_sc_sm.o
+    374	      0	      0	    374	    176	bin/smpi_sm.o
+   1314	      0	      0	   1314	    522	bin/smpr_act.o
+   1498	      0	      0	   1498	    5da	bin/smpr_sc_act.o
+   1934	      0	      0	   1934	    78e	bin/smpr_sc_sm.o
+    409	      0	      0	    409	    199	bin/smpr_sm.o
+   2820	      0	      0	   2820	    b04	bin/smp_act.o
+   1132	      0	     88	   1220	    4c4	bin/smp_db.o
+   2833	      0	    240	   3073	    c01	bin/smp_main.o
+    194	      0	      0	    194	     c2	bin/smp_non.o
+   3656	      0	      0	   3656	    e48	bin/smp_sc_act.o
+   2768	      0	     84	   2852	    b24	bin/smp_sc_main.o
+   2362	     10	   1216	   3588	    e04	bin/app_db.o
+    948	     11	      9	    968	    3c8	bin/app_hw.o
+    372	      0	     12	    384	    180	bin/app_ui.o
+    851	     16	      1	    868	    364	bin/ui_console.o
+   2609	     28	      2	   2639	    a4f	bin/ui_lcd.o
+   3758	    120	    157	   4035	    fc3	bin/ui_main.o
+     73	      0	      0	     73	     49	bin/ui_platform.o
+    446	      0	     49	    495	    1ef	bin/ui_timer.o
+   1144	     40	      0	   1184	    4a0	bin/hci_dbg_trc.o
+   2130	    244	    819	   3193	    c79	bin/hci_drv_cooper.o
+   1238	      0	      1	   1239	    4d7	bin/hci_vs_cooper.o
+    974	      0	     40	   1014	    3f6	bin/bas_main.o
+    796	      0	      4	    800	    320	bin/hid_main.o
+    548	     12	      2	    562	    232	bin/gatt_main.o
+   3435	      0	     18	   3453	    d7d	bin/hidapp_main.o
+    176	      8	      0	    184	     b8	bin/gap_main.o
+    538	      0	     12	    550	    226	bin/rscps_main.o
+   9890	      4	      0	   9894	   26a6	bin/uECC.o
+   7218	      4	    376	   7598	   1dae	bin/uECC_ll.o
+   3200	      0	     52	   3252	    cb4	bin/app_disc.o
+   1115	      8	    198	   1321	    529	bin/app_main.o
+   3212	      0	    160	   3372	    d2c	bin/app_master.o
+    506	      0	      0	    506	    1fa	bin/app_master_ae.o
+    224	      0	      0	    224	     e0	bin/app_master_leg.o
+    796	      0	      0	    796	    31c	bin/app_server.o
+   6182	      0	    128	   6310	   18a6	bin/app_slave.o
+   2606	      0	     28	   2634	    a4a	bin/app_slave_ae.o
+    968	      0	      0	    968	    3c8	bin/app_slave_leg.o
+    879	     32	      0	    911	    38f	bin/app_terminal.o
+   2668	      0	      0	   2668	    a6c	bin/am_util_ble_cooper.o
+      0	      0	      0	      0	      0	bin/am_util_debug.o
+     94	      0	      0	     94	     5e	bin/am_util_delay.o
+    286	      0	      0	    286	    11e	bin/am_util_faultisr.o
+    324	      0	      0	    324	    144	bin/am_util_id.o
+   3975	      0	   1029	   5004	   138c	bin/am_util_stdio.o
+    868	      0	  16408	  17276	   437c	bin/heap_4.o
+    557	     32	     40	    629	    275	bin/svc_alert.o
+    291	     20	      3	    314	    13a	bin/svc_batt.o
+    313	     22	      4	    339	    153	bin/svc_bps.o
+    501	     62	     23	    586	    24a	bin/svc_core.o
+    220	     24	      3	    247	     f7	bin/svc_cps.o
+    220	     22	      3	    245	     f5	bin/svc_cscs.o
+    316	     20	      8	    344	    158	bin/svc_cte.o
+    380	    148	      6	    534	    216	bin/svc_dis.o
+    299	     20	      8	    327	    147	bin/svc_gls.o
+    413	     21	     13	    447	    1bf	bin/svc_gyro.o
+   1736	     37	    267	   2040	    7f8	bin/svc_hid.o
+    225	     21	      2	    248	     f8	bin/svc_hrs.o
+    239	     21	      4	    264	    108	bin/svc_hts.o
+     78	     20	      0	     98	     62	bin/svc_ipss.o
+    297	     22	     13	    332	    14c	bin/svc_plxs.o
+    245	     20	      3	    268	    10c	bin/svc_px.o
+    220	     22	      3	    245	     f5	bin/svc_rscs.o
+    112	     20	      0	    132	     84	bin/svc_scpss.o
+    315	     21	      5	    341	    155	bin/svc_temp.o
+    364	     36	     13	    413	    19d	bin/svc_time.o
+    984	     20	     62	   1066	    42a	bin/svc_uricfg.o
+    430	     20	      8	    458	    1ca	bin/svc_wdxs.o
+    182	     20	      2	    204	     cc	bin/svc_wp.o
+    179	     24	      2	    205	     cd	bin/svc_wss.o
+   1214	      0	      0	   1214	    4be	bin/event_groups.o
+    310	      0	      0	    310	    136	bin/list.o
+   3576	      0	      0	   3576	    df8	bin/queue.o
+   5535	      0	    216	   5751	   1677	bin/tasks.o
+   1814	      0	     60	   1874	    752	bin/timers.o
+    494	      0	      0	    494	    1ee	bin/am_devices_button.o
+   5726	     44	    124	   5894	   1706	bin/am_devices_cooper.o
+   1122	      0	      0	   1122	    462	bin/am_devices_led.o
+    622	  11008	      0	  11630	   2d6e	bin/startup_gcc.o
+     40	      0	      0	     40	     28	am_hal_bootrom_helper.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    872	      5	      0	    877	    36d	am_hal_cachectrl.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   5812	      0	      0	   5812	   16b4	am_hal_card.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    252	    148	      0	    400	    190	am_hal_card_host.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    660	      0	      0	    660	    294	am_hal_clkgen.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2024	      0	    484	   2508	    9cc	am_hal_cmdq.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   1020	      0	      4	   1024	    400	am_hal_dsi.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    112	      0	      0	    112	     70	am_hal_fault.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+     24	      0	      0	     24	     18	am_hal_interrupt.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   8716	      0	  17728	  26444	   674c	am_hal_iom.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2300	      0	     72	   2372	    944	am_hal_ios.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    504	      0	      0	    504	    1f8	am_hal_itm.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    900	      8	      0	    908	    38c	am_hal_mcuctrl.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    180	      0	      0	    180	     b4	am_hal_mpu.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    276	      0	      0	    276	    114	am_hal_mram.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   8572	      0	   6732	  15304	   3bc8	am_hal_mspi.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    363	      0	      4	    367	    16f	am_hal_reset.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   1336	      0	      0	   1336	    538	am_hal_rtc.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   4152	      0	    212	   4364	   110c	am_hal_sdhc.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    292	      0	     12	    304	    130	am_hal_secure_ota.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    408	      0	      0	    408	    198	am_hal_sysctrl.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    144	      0	      0	    144	     90	am_hal_systick.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    140	      0	      0	    140	     8c	am_hal_tpiu.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2736	      0	    736	   3472	    d90	am_hal_uart.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    284	      0	      0	    284	    11c	am_hal_utils.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    188	      0	      0	    188	     bc	am_hal_access.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2888	      0	    105	   2993	    bb1	am_hal_adc.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   4164	      0	    104	   4268	   10ac	am_hal_audadc.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    600	     32	      4	    636	    27c	am_hal_dcu.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+     62	      0	      4	     66	     42	am_hal_global.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   1928	      0	   2048	   3976	    f88	am_hal_gpio.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2588	      0	    152	   2740	    ab4	am_hal_i2s.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    160	      0	      0	    160	     a0	am_hal_otp.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   1556	      0	     96	   1652	    674	am_hal_pdm.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   4096	      0	      0	   4096	   1000	am_hal_pin.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   5883	      9	     43	   5935	   172f	am_hal_pwrctrl.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    276	      0	      0	    276	    114	am_hal_queue.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    396	      0	      0	    396	    18c	am_hal_security.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   1024	     32	      1	   1057	    421	am_hal_stimer.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   2728	      0	      0	   2728	    aa8	am_hal_timer.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   5844	      0	    264	   6108	   17dc	am_hal_usb.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+    808	      0	      0	    808	    328	am_hal_wdt.o (ex ../../../../../../mcu/apollo4p/hal/mcu/gcc/bin/libam_hal.a)
+   5484	    144	   2053	   7681	   1e01	am_bsp.o (ex ../../../../bsp/gcc/bin/libam_bsp.a)
+      0	    612	     28	    640	    280	am_bsp_pins.o (ex ../../../../bsp/gcc/bin/libam_bsp.a)
+ 124124	   1048	  57628	 182800	  2ca10	bin/ble_freertos_fit_lp.axf
