@@ -2,12 +2,10 @@
 //
 //! @file pdm_to_i2s.c
 //!
-//! @brief An example to show PDM to I2S(slave) operation.
+//! @brief An example to show PDM to I2S(master) operation.
 //!
 //! Purpose: This example enables the PDM and I2S interface to collect audio signals from
 //!          an external microphone, I2S module using pingpong buffer to interact with PDM,
-//!          and start transaction when mclk is supplied(from external I2S master).
-//!          Notice: external mclk should be supplied first at this example.
 //! The required pin connections are:
 //!
 //! Printing takes place over the ITM at 1M Baud.
@@ -153,7 +151,8 @@ am_hal_pdm_config_t g_sPdmConfig =
     //  16.00KHz 24bit Sampling:
     //      DecimationRate = 48
     //
-    .ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC2ADJ_24_576MHZ,
+    //.ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC2ADJ_24_576MHZ,
+    .ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC_24MHZ,
     .eClkDivider = AM_HAL_PDM_MCLKDIV_1,
     .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV7,
     .ui32DecimationRate = 48,
@@ -230,23 +229,14 @@ static const IRQn_Type i2s_interrupts[] =
 };
 
 #if I2S_MODULE == 0
-#define I2S_DATA_IN_GPIO_FUNC          AM_HAL_PIN_14_I2S0_SDIN
-#define I2S_DATA_IN_GPIO_PIN           14
-#define I2S_DATA_OUT_GPIO_FUNC         AM_HAL_PIN_12_I2S0_SDOUT
-#define I2S_DATA_OUT_GPIO_PIN          12
-#define I2S_CLK_GPIO_FUNC              AM_HAL_PIN_11_I2S0_CLK
-#define I2S_CLK_GPIO_PIN               11
-#define I2S_WS_GPIO_FUNC               AM_HAL_PIN_13_I2S0_WS
-#define I2S_WS_GPIO_PIN                13
-#elif I2S_MODULE == 1
-#define I2S_DATA_IN_GPIO_FUNC          AM_HAL_PIN_19_I2S1_SDIN
-#define I2S_DATA_IN_GPIO_PIN           19
-#define I2S_DATA_OUT_GPIO_FUNC         AM_HAL_PIN_17_I2S1_SDOUT
-#define I2S_DATA_OUT_GPIO_PIN          17
-#define I2S_CLK_GPIO_FUNC              AM_HAL_PIN_16_I2S1_CLK
-#define I2S_CLK_GPIO_PIN               16
-#define I2S_WS_GPIO_FUNC               AM_HAL_PIN_18_I2S1_WS
-#define I2S_WS_GPIO_PIN                18
+#define I2S_DATA_IN_GPIO_FUNC  AM_HAL_PIN_4_I2S0_SDIN
+#define I2S_DATA_IN_GPIO_PIN   4
+#define I2S_DATA_OUT_GPIO_FUNC  AM_HAL_PIN_6_I2S0_SDOUT
+#define I2S_DATA_OUT_GPIO_PIN   6
+#define I2S_CLK_GPIO_FUNC   AM_HAL_PIN_5_I2S0_CLK
+#define I2S_CLK_GPIO_PIN    5
+#define I2S_WS_GPIO_FUNC    AM_HAL_PIN_7_I2S0_WS
+#define I2S_WS_GPIO_PIN     7
 #endif
 
 void *I2SHandle;
@@ -281,15 +271,10 @@ static am_hal_i2s_data_format_t g_sI2SDataConfig =
 //*****************************************************************************
 static am_hal_i2s_config_t g_sI2SConfig =
 {
-  .eClock               = eAM_HAL_I2S_CLKSEL_HFRC2_3MHz, //eAM_HAL_I2S_CLKSEL_HFRC_6MHz,
+    .eClock               = eAM_HAL_I2S_CLKSEL_HFRC_3MHz,
   .eDiv3                = 1,
-#if DATA_VERIFY
-  .eASRC                = 0,
-#else
-  .eASRC                = 0,
-#endif
   .eMode                = AM_HAL_I2S_IO_MODE_MASTER,
-  .eXfer                = AM_HAL_I2S_XFER_TX,
+   .eXfer                = AM_HAL_I2S_XFER_TX,
   .eData                = &g_sI2SDataConfig,
   .eIO                  = &g_sI2SIOConfig
 };
@@ -466,15 +451,14 @@ i2s_init(void)
       .GP.cfg_b.ePullup   = 0
     };
 
-    sPinCfg.GP.cfg_b.uFuncSel = I2S_DATA_OUT_GPIO_FUNC;
-    am_hal_gpio_pinconfig(I2S_DATA_OUT_GPIO_PIN, sPinCfg);
-    sPinCfg.GP.cfg_b.uFuncSel = I2S_DATA_IN_GPIO_FUNC;
-    am_hal_gpio_pinconfig(I2S_DATA_IN_GPIO_PIN, sPinCfg);
+    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_12_I2S0_SDOUT;
+    am_hal_gpio_pinconfig(12, sPinCfg);
 
-    sPinCfg.GP.cfg_b.uFuncSel = I2S_CLK_GPIO_FUNC;
-    am_hal_gpio_pinconfig(I2S_CLK_GPIO_PIN, sPinCfg);
-    sPinCfg.GP.cfg_b.uFuncSel = I2S_WS_GPIO_FUNC;
-    am_hal_gpio_pinconfig(I2S_WS_GPIO_PIN, sPinCfg);
+    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_11_I2S0_CLK;
+    am_hal_gpio_pinconfig(11, sPinCfg);
+	
+    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_13_I2S0_WS;
+    am_hal_gpio_pinconfig(13, sPinCfg);
 
     am_hal_i2s_initialize(I2S_MODULE, &I2SHandle);
     am_hal_i2s_power_control(I2SHandle, AM_HAL_I2S_POWER_ON, false);
@@ -558,6 +542,38 @@ void i2s_deinit(void *pHandle)
     am_hal_i2s_deinitialize(pHandle);
 }
 
+
+void MCLK_set_up(void)
+{
+    //
+    // Configure the necessary pins.
+    //
+    am_hal_gpio_pincfg_t sPinCfg =
+    {
+      .GP.cfg_b.eGPOutCfg = 1,
+      .GP.cfg_b.ePullup   = 0
+    };
+
+    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_71_CLKOUT;
+    am_hal_gpio_pinconfig(71, sPinCfg);
+
+	//
+	// Disable before changing the clock
+	//
+	CLKGEN->CLKOUT_b.CKEN = 0;
+
+	//
+	// Set the new clock select
+	//
+	CLKGEN->CLKOUT_b.CKSEL = CLKGEN_CLKOUT_CKSEL_HFRC_DIV2;
+	
+
+	//
+	// Enable as requested.
+	//
+	CLKGEN->CLKOUT_b.CKEN = 1;
+
+}
 //*****************************************************************************
 //
 // Main
@@ -576,7 +592,7 @@ main(void)
     am_util_stdio_printf("PDM_I2S streaming example.\n\n");
 
     am_bsp_low_power_init();
-
+    MCLK_set_up();
 #if DATA_VERIFY
     am_hal_gpio_pinconfig(PDM_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
     am_hal_gpio_pinconfig(I2S_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
