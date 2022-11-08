@@ -130,7 +130,7 @@ static const IRQn_Type pdm_interrupts[] =
 #define FIFO_THRESHOLD_CNT      16
 #define DMA_BYTES               PDM_FFT_BYTES
 
-#define DATA_VERIFY             0
+#define DATA_VERIFY             1
 #define PDM_ISR_TEST_PAD        2
 #define I2S_ISR_TEST_PAD        3
 //*****************************************************************************
@@ -229,14 +229,12 @@ static const IRQn_Type i2s_interrupts[] =
 };
 
 #if I2S_MODULE == 0
-#define I2S_DATA_IN_GPIO_FUNC  AM_HAL_PIN_4_I2S0_SDIN
-#define I2S_DATA_IN_GPIO_PIN   4
-#define I2S_DATA_OUT_GPIO_FUNC  AM_HAL_PIN_6_I2S0_SDOUT
-#define I2S_DATA_OUT_GPIO_PIN   6
-#define I2S_CLK_GPIO_FUNC   AM_HAL_PIN_5_I2S0_CLK
-#define I2S_CLK_GPIO_PIN    5
-#define I2S_WS_GPIO_FUNC    AM_HAL_PIN_7_I2S0_WS
-#define I2S_WS_GPIO_PIN     7
+#define I2S_DATA_OUT_GPIO_FUNC  AM_HAL_PIN_12_I2S0_SDOUT
+#define I2S_DATA_OUT_GPIO_PIN   12
+#define I2S_CLK_GPIO_FUNC   AM_HAL_PIN_11_I2S0_CLK
+#define I2S_CLK_GPIO_PIN    11
+#define I2S_WS_GPIO_FUNC    AM_HAL_PIN_13_I2S0_WS
+#define I2S_WS_GPIO_PIN     13
 #endif
 
 void *I2SHandle;
@@ -313,19 +311,6 @@ pdm_init(void)
     am_hal_pdm_initialize(PDM_MODULE, &PDMHandle);
     am_hal_pdm_power_control(PDMHandle, AM_HAL_PDM_POWER_ON, false);
 
-#if defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
-    // use external XTHS, not reference clock
-    am_hal_mcuctrl_control(AM_HAL_MCUCTRL_CONTROL_EXTCLK32M_KICK_START, false);
-
-    // Enable HFRC2
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFRC2_START, false);
-    am_util_delay_us(500);      // wait for FLL to lock
-
-    // set HF2ADJ for 24.576MHz output
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HF2ADJ_ENABLE, false);
-    am_util_delay_us(500);      // wait for adj to apply
-#endif
-
     am_hal_pdm_configure(PDMHandle, &g_sPdmConfig);
 
     //
@@ -362,9 +347,13 @@ void
 example_pdm_isr(void)
 {
     uint32_t ui32Status;
+	am_hal_pdm_state_t *pState = (am_hal_pdm_state_t *) PDMHandle;
 
 #if DATA_VERIFY
-    am_hal_gpio_output_set(PDM_ISR_TEST_PAD);
+	if (pState->ui32BufferPtr == g_sTransferPDM.ui32TargetAddr)
+    		am_hal_gpio_output_set(PDM_ISR_TEST_PAD);
+	else
+		am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
 #endif
 
     //
@@ -374,7 +363,7 @@ example_pdm_isr(void)
     am_hal_pdm_interrupt_clear(PDMHandle, ui32Status);
 
 #if DATA_VERIFY
-    am_hal_pdm_state_t *pState = (am_hal_pdm_state_t *) PDMHandle;
+    
     static uint32_t ui32Switch = 0;
     if ( ui32Switch )
     {
@@ -417,7 +406,7 @@ example_pdm_isr(void)
      }
 
 #if DATA_VERIFY
-    am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
+    //am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
 #endif
 }
 
@@ -430,19 +419,6 @@ void
 i2s_init(void)
 {
     //
-    // When changing the I2S clock source, no matter whether HFRC2 is being used or not,
-    // HFRC2 has to be enabled first to make clock source changing effective.
-    //
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFRC2_START, false);
-    am_util_delay_us(500);
-
-    if ( (eAM_HAL_I2S_CLKSEL_XTHS_EXTREF_CLK <= g_sI2SConfig.eClock  && g_sI2SConfig.eClock <= eAM_HAL_I2S_CLKSEL_XTHS_500KHz) ) //enable EXTCLK32M
-    {
-        am_hal_mcuctrl_control(AM_HAL_MCUCTRL_CONTROL_EXTCLK32M_NORMAL, 0);
-        am_util_delay_ms(200);
-    }
-
-    //
     // Configure the necessary pins.
     //
     am_hal_gpio_pincfg_t sPinCfg =
@@ -451,14 +427,14 @@ i2s_init(void)
       .GP.cfg_b.ePullup   = 0
     };
 
-    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_12_I2S0_SDOUT;
-    am_hal_gpio_pinconfig(12, sPinCfg);
+    sPinCfg.GP.cfg_b.uFuncSel = I2S_DATA_OUT_GPIO_FUNC;
+    am_hal_gpio_pinconfig(I2S_DATA_OUT_GPIO_PIN, sPinCfg);
 
-    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_11_I2S0_CLK;
-    am_hal_gpio_pinconfig(11, sPinCfg);
+    sPinCfg.GP.cfg_b.uFuncSel = I2S_CLK_GPIO_FUNC;
+    am_hal_gpio_pinconfig(I2S_CLK_GPIO_PIN, sPinCfg);
 	
-    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_13_I2S0_WS;
-    am_hal_gpio_pinconfig(13, sPinCfg);
+    sPinCfg.GP.cfg_b.uFuncSel = I2S_WS_GPIO_FUNC;
+    am_hal_gpio_pinconfig(I2S_WS_GPIO_PIN, sPinCfg);
 
     am_hal_i2s_initialize(I2S_MODULE, &I2SHandle);
     am_hal_i2s_power_control(I2SHandle, AM_HAL_I2S_POWER_ON, false);
@@ -476,7 +452,12 @@ am_dspi2s0_isr()
 {
     uint32_t ui32Status;
 #if DATA_VERIFY
-    am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
+
+    //am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
+    	if (am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX) == g_sTransferPDM.ui32TargetAddr)
+    		am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
+	else
+		am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
 #endif
     am_hal_i2s_interrupt_status_get(I2SHandle, &ui32Status, true);
     am_hal_i2s_interrupt_clear(I2SHandle, ui32Status);
@@ -485,7 +466,7 @@ am_dspi2s0_isr()
     am_hal_i2s_interrupt_service(I2SHandle, ui32Status, &g_sI2SConfig);
 
 #if DATA_VERIFY
-    am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
+    //am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
 #endif
 }
 
@@ -534,7 +515,6 @@ void i2s_deinit(void *pHandle)
     am_hal_gpio_pinconfig(I2S_WS_GPIO_PIN, am_hal_gpio_pincfg_disabled);
     am_hal_gpio_pinconfig(I2S_CLK_GPIO_PIN, am_hal_gpio_pincfg_disabled);
     am_hal_gpio_pinconfig(I2S_DATA_OUT_GPIO_PIN, am_hal_gpio_pincfg_disabled);
-    am_hal_gpio_pinconfig(I2S_DATA_IN_GPIO_PIN, am_hal_gpio_pincfg_disabled);
 
     am_hal_i2s_disable(pHandle);
     am_hal_i2s_power_control(pHandle, AM_HAL_I2S_POWER_OFF, false);
@@ -596,8 +576,8 @@ main(void)
 #if DATA_VERIFY
     am_hal_gpio_pinconfig(PDM_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
     am_hal_gpio_pinconfig(I2S_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
-    am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
-    am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
+    am_hal_gpio_output_set(PDM_ISR_TEST_PAD);
+    am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
 #endif
 #ifndef AM_PART_APOLLO4P
     //
@@ -633,7 +613,7 @@ main(void)
     am_hal_pdm_dma_start(PDMHandle, &g_sTransferPDM);
 
     //Avoid interrupt coming simultaneously.
-    am_util_delay_ms(5);
+    am_util_delay_ms(1);
 
     // use the reverser buffer of PDM
     g_sTransferI2S.ui32TxTargetAddr = am_hal_pdm_dma_get_buffer(PDMHandle);
@@ -641,6 +621,8 @@ main(void)
     //Start I2S data transaction.
     am_hal_i2s_dma_configure(I2SHandle, &g_sI2SConfig, &g_sTransferI2S);
     am_hal_i2s_dma_transfer_start(I2SHandle, &g_sI2SConfig);
+
+    
 
     //
     // Loop forever while sleeping.
