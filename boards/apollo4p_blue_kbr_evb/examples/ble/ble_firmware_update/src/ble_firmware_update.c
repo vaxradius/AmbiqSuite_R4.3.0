@@ -68,7 +68,8 @@
 //#define UPDATE_BLE_INFO0
 //#define UPDATE_BLE_INFO1
 #if defined(UPDATE_BLE_FW)
-#include "ble_fw_image.h"
+//#include "ble_fw_image.h"
+#include "ble_fw_image_1p20p2.h"
 #define image_bin       ble_fw_image_bin
 #define image_type      AM_DEVICES_COOPER_SBL_UPDATE_IMAGE_TYPE_FW
 #define ble_get_binary  am_devices_cooper_get_FwImage
@@ -117,6 +118,9 @@ int
 main(void)
 {
     uint32_t ui32Status = 0;
+
+    am_hal_gpio_state_write(18, AM_HAL_GPIO_OUTPUT_SET);
+    am_hal_gpio_pinconfig(18, am_hal_gpio_pincfg_output);
 
     //
     // Default setup.
