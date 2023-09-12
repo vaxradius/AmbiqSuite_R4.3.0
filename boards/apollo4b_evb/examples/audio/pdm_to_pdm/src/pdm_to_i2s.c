@@ -155,7 +155,7 @@ am_hal_pdm_config_t g_sPdmConfig =
     .ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC_24MHZ,
     .eClkDivider = AM_HAL_PDM_MCLKDIV_1,
     .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV3, // 3MHz pdm clock out
-    .ui32DecimationRate = 16, //32x2 SR: 48KHz; 24x2 SR: 64KHz
+    .ui32DecimationRate = 16, //32x2 SR: 48KHz; 24x2 SR: 64KHz; 16x2 SR: 96KHz
 
 #else
     //
@@ -347,6 +347,15 @@ void Int24bits_2_Int32bits(uint32_t* Int24bit)
 		*Int24bit &= 0x007FFFFF;
 }
 
+void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
+{
+	uint32_t j = 0;
+
+	for(j=0; j<DMA_SIZE; j++)
+		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
+}
+
+
 //*****************************************************************************
 //
 // PDM interrupt handler.
@@ -375,13 +384,15 @@ example_pdm_isr(void)
 
 
 #if 1
-#if 0
-	am_hal_gpio_output_clear(9);
+#if 1
+	//am_hal_gpio_output_clear(9);
+
 	for (int i = 0; i < DMA_SIZE; i++)
-	{
 		 Int24bits_2_Int32bits(&((uint32_t*)pState->ui32BufferPtr)[i]);
-	}
-	am_hal_gpio_output_set(9);
+
+	PCM_to_PDM(&((uint32_t*)pState->ui32BufferPtr)[0], &((int32_t*)pState->ui32BufferPtr)[0]);
+
+	//am_hal_gpio_output_set(9);
 #else
 	for (int i = 0; i < DMA_SIZE; i++)
 	{
@@ -576,7 +587,8 @@ void MCLK_set_up(void)
 int
 main(void)
 {
-    am_bsp_itm_printf_enable();
+	uint32_t ui32retval;
+	am_bsp_itm_printf_enable();
 
     //
     // Print the banner.
@@ -585,7 +597,22 @@ main(void)
     am_util_stdio_printf("==============================================\n");
     am_util_stdio_printf("PDM_2_PDM streaming example.\n\n");
 
+    //
+    // Set the default cache configuration
+    //
+    am_hal_cachectrl_config(&am_hal_cachectrl_defaults);
+    am_hal_cachectrl_enable();
+
     am_bsp_low_power_init();
+
+	am_util_stdio_printf("Set High Performance (HP) Mode.");
+	ui32retval = am_hal_pwrctrl_mcu_mode_select(AM_HAL_PWRCTRL_MCU_MODE_HIGH_PERFORMANCE);
+	if ( ui32retval != AM_HAL_STATUS_SUCCESS )
+	{
+		am_util_stdio_printf("Error with am_hal_pwrctrl_mcu_mode_select(), returned %d.\n", ui32retval);
+		while(1);
+	}
+	
     MCLK_set_up();
 #if DATA_VERIFY
     am_hal_gpio_pinconfig(PDM_ISR_TEST_PAD, am_hal_gpio_pincfg_output);

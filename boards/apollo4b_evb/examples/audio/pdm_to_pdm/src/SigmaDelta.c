@@ -1,4 +1,4 @@
-
+#include "am_mcu_apollo.h"
 
 static int32_t first_integrator = 0;
 static int32_t first_result = 0;
@@ -6,7 +6,7 @@ static int32_t second_integrator = 0;
 //static int32_t second_result = 0;
 
 //Derrived from  http://www.danbullard.com/dan/A_Sigma_Delta_ADC_Simulator_in_C.pdf
-void two_level_sigma_delta(uint32_t *out, int16_t in, uint16_t len)
+void two_level_sigma_delta(uint32_t *out, int32_t in, uint16_t len)
 {
 	uint16_t i,j = 0;
 	int32_t y = in;
@@ -22,19 +22,19 @@ void two_level_sigma_delta(uint32_t *out, int16_t in, uint16_t len)
 
 			if (first_integrator > 0) 
 			{			
-				first_result = 32768;
+				first_result = 8388607;
 				*(out+i) |= (1 << j);
 			}
 			else
 			{
-				first_result = -32768;
+				first_result = -8388608;
 			}
 		}
 	}
 }
 
 //Derrived from https://books.google.com.tw/books?id=Gum3CgAAQBAJ&pg=PA120&dq=Delta-sigma+Modulators+0.1158&hl=zh-TW&sa=X&ved=2ahUKEwiJ6Key4q3sAhVHyosBHQdADwQQ6AEwAHoECAAQAg#v=onepage&q&f=false
-void three_level_sigma_delta(uint16_t *out, int16_t in, uint16_t len)
+void three_level_sigma_delta(uint32_t *out, int32_t in, uint16_t len)
 {
 		uint16_t i,j = 0;
 
@@ -57,7 +57,7 @@ void three_level_sigma_delta(uint16_t *out, int16_t in, uint16_t len)
         for(i = 0; i < len ; i++)
 		{
 			*(out+i) = 0;
-			for(j=0;j<16;j++)
+			for(j=0;j<32;j++)
 			{
                 qe0 = k1 * u - k1*last_dsm_signal; 
                 sum_value0 = sum_value0 + qe0;
@@ -84,17 +84,4 @@ void three_level_sigma_delta(uint16_t *out, int16_t in, uint16_t len)
 
         	}
         }
-}
-
-void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
-{
-	uint32_t j = 0;
-
-	for(j=0; j<BUF_SIZE; j++)
-	{
-		//Am_Sigma_Delta(pdm+(j*(OSR/16)), (*(pcm+j))*2, (OSR/16));
-		//PDM_2_PWM(pdm+(j*(OSR/16)));
-		//two_level_sigma_delta(pdm+(j*(OSR/16)), (*(pcm+j)), (OSR/16));
-		three_level_sigma_delta(pdm+(j*(OSR/16)), (*(pcm+j)), (OSR/16));
-	}
 }
