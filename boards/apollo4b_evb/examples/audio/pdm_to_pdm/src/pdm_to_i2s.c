@@ -171,9 +171,9 @@ am_hal_pdm_config_t g_sPdmConfig =
     .ui32DecimationRate = 48,
 #endif
 
-    .eLeftGain = AM_HAL_PDM_GAIN_P105DB,
-    .eRightGain = AM_HAL_PDM_GAIN_P105DB,
-    .eStepSize = AM_HAL_PDM_GAIN_STEP_0_13DB,
+    .eLeftGain = AM_HAL_PDM_GAIN_P345DB,
+    .eRightGain = AM_HAL_PDM_GAIN_P345DB,
+    .eStepSize = AM_HAL_PDM_GAIN_STEP_0_26DB,
 
     .bHighPassEnable = AM_HAL_PDM_HIGH_PASS_ENABLE,
     .ui32HighPassCutoff = 0x3,
@@ -407,6 +407,7 @@ i2s_init(void)
     am_hal_gpio_pincfg_t sPinCfg =
     {
       .GP.cfg_b.eGPOutCfg = 1,
+	.GP.cfg_b.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_0P5X,
       .GP.cfg_b.ePullup   = 0
     };
 
