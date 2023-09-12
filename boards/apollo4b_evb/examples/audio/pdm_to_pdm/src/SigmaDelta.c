@@ -86,16 +86,6 @@ void three_level_sigma_delta(uint16_t *out, int16_t in, uint16_t len)
         }
 }
 
-//https://stackoverflow.com/questions/59346207/24-bit-to-32-bit-conversion-in-c
-int interpret24bitAsInt32(unsigned char* byteArray)
- {     
-	return (  
-	    (byteArray[2] << 24)
-	|   (byteArray[1] << 16)
-	|   (byteArray[0] << 8)
-	) >> 8;   
-}
-
 void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 {
 	uint32_t j = 0;

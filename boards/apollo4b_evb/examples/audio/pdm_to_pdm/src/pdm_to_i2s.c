@@ -338,6 +338,15 @@ pdm_init(void)
     NVIC_EnableIRQ(pdm_interrupts[PDM_MODULE]);
 }
 
+//https://en.wikipedia.org/wiki/Two%27s_complement
+void Int24bits_2_Int32bits(uint32_t* Int24bit)
+{     
+	if(*Int24bit & 0x00800000)
+		*Int24bit |= 0xFF800000;
+	else
+		*Int24bit &= 0x007FFFFF;
+}
+
 //*****************************************************************************
 //
 // PDM interrupt handler.
@@ -346,8 +355,9 @@ pdm_init(void)
 void
 example_pdm_isr(void)
 {
-    uint32_t ui32Status;
+	uint32_t ui32Status;
 	am_hal_pdm_state_t *pState = (am_hal_pdm_state_t *) PDMHandle;
+	am_hal_gpio_output_set(9);
 
 #if DATA_VERIFY
 	//if (pState->ui32BufferPtr == g_sTransferPDM.ui32TargetAddr)
@@ -364,42 +374,22 @@ example_pdm_isr(void)
     am_hal_pdm_interrupt_clear(PDMHandle, ui32Status);
 
 
-
-//#if DATA_VERIFY
-#if 0
-
-#if 0
-    
-    static uint32_t ui32Switch = 0;
-    if ( ui32Switch )
-    {
-        ui32Switch = 0;
-        for (int i = 0; i < DMA_SIZE; i++)
-        {
-            //((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xAB0000;
-            ((uint32_t*)pState->ui32BufferPtr)[i] =0x0;
-        }
-    }
-    else
-    {
-        ui32Switch = 1;
-        for (int i = 0; i < DMA_SIZE; i++)
-        {
-            //((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xCD0000;
-            ((uint32_t*)pState->ui32BufferPtr)[i] =0;
-        }
-    }
+#if 1
+#if 1
+	am_hal_gpio_output_clear(9);
+	for (int i = 0; i < DMA_SIZE; i++)
+	{
+		 Int24bits_2_Int32bits(&((uint32_t*)pState->ui32BufferPtr)[i]);
+	}
+	am_hal_gpio_output_set(9);
 #else
-	//memset((void *)(&g_ui32PingPongBuffer),0xAA, (DMA_SIZE + DMA_SIZE +3)* 4 );
-	 
-        for (int i = 0; i < DMA_SIZE; i++)
-        {
-            //((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xAB0000;
-            ((uint32_t*)pState->ui32BufferPtr)[i] =0x70AA1111;
-        }
-    
+
+	for (int i = 0; i < DMA_SIZE; i++)
+	{
+		//((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xAB0000;
+		((uint32_t*)pState->ui32BufferPtr)[i] =0x70AA1111;
+	}
 #endif
-    //am_util_stdio_printf("pdm isr addr = %x.\n", pState->ui32BufferPtr);
 #endif
 
     //
@@ -428,6 +418,7 @@ example_pdm_isr(void)
 #if DATA_VERIFY
     //am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
 #endif
+	am_hal_gpio_output_clear(9);
 }
 
 //*****************************************************************************
@@ -471,6 +462,7 @@ void
 am_dspi2s0_isr()
 {
     uint32_t ui32Status;
+    am_hal_gpio_output_set(9);
 #if DATA_VERIFY
 
     //am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
@@ -488,6 +480,7 @@ am_dspi2s0_isr()
 #if DATA_VERIFY
     //am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
 #endif
+   am_hal_gpio_output_clear(9);
 }
 
 //*****************************************************************************
@@ -656,9 +649,9 @@ main(void)
         //
         // Go to Deep Sleep.
         //
-	am_hal_gpio_output_clear(9);
+	//am_hal_gpio_output_clear(9);
 	am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_NORMAL);
-	am_hal_gpio_output_set(9);
+	//am_hal_gpio_output_set(9);
     }
 }
 
