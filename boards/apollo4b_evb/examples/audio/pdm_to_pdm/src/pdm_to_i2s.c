@@ -574,6 +574,7 @@ void MCLK_set_up(void)
 	CLKGEN->CLKOUT_b.CKEN = 1;
 
 }
+
 //*****************************************************************************
 //
 // Main
@@ -589,7 +590,7 @@ main(void)
     //
     am_util_stdio_terminal_clear();
     am_util_stdio_printf("==============================================\n");
-    am_util_stdio_printf("PDM_I2S streaming example.\n\n");
+    am_util_stdio_printf("PDM_2_PDM streaming example.\n\n");
 
     am_bsp_low_power_init();
     MCLK_set_up();
