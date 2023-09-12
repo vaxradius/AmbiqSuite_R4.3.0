@@ -375,7 +375,7 @@ example_pdm_isr(void)
 
 
 #if 1
-#if 1
+#if 0
 	am_hal_gpio_output_clear(9);
 	for (int i = 0; i < DMA_SIZE; i++)
 	{
@@ -383,11 +383,11 @@ example_pdm_isr(void)
 	}
 	am_hal_gpio_output_set(9);
 #else
-
 	for (int i = 0; i < DMA_SIZE; i++)
 	{
 		//((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xAB0000;
-		((uint32_t*)pState->ui32BufferPtr)[i] =0x70AA1111;
+		//((uint32_t*)pState->ui32BufferPtr)[i] =0x70AA1111;
+		((uint32_t*)pState->ui32BufferPtr)[i] =0x00;
 	}
 #endif
 #endif
@@ -630,7 +630,7 @@ main(void)
     am_hal_pdm_dma_start(PDMHandle, &g_sTransferPDM);
 
     //Avoid interrupt coming simultaneously.
-    am_util_delay_us(1);
+    am_util_delay_us(100);
 
     // use the reverser buffer of PDM
     g_sTransferI2S.ui32TxTargetAddr = am_hal_pdm_dma_get_buffer(PDMHandle);
