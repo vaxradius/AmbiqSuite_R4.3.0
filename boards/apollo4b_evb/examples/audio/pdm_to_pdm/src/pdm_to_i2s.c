@@ -194,6 +194,7 @@ am_hal_pdm_config_t g_sPdmConfig =
 //*****************************************************************************
 uint32_t g_ui32FifoOVFCount = 0;
 volatile bool g_bPDMDataReady = false;
+volatile bool g_bI2STxCMP = false;
 
 //*****************************************************************************
 //
@@ -295,7 +296,9 @@ am_hal_pdm_transfer_t g_sTransferPDM =
 };
 
 //pingpong buffer size: PMD_DMATOTCOUNT(x2)
-AM_SHARED_RW uint32_t g_ui32PingPongBuffer[DMA_SIZE + DMA_SIZE + 3 ];
+AM_SHARED_RW uint32_t g_ui32PingPongBufferPDM[DMA_SIZE + DMA_SIZE + 3 ];
+//pingpong buffer size: PMD_DMATOTCOUNT(x2)
+AM_SHARED_RW uint32_t g_ui32PingPongBufferI2S[DMA_SIZE + DMA_SIZE + 3 ];
 
 //*****************************************************************************
 //
@@ -338,24 +341,6 @@ pdm_init(void)
     NVIC_EnableIRQ(pdm_interrupts[PDM_MODULE]);
 }
 
-//https://en.wikipedia.org/wiki/Two%27s_complement
-void Int24bits_2_Int32bits(uint32_t* Int24bit)
-{     
-	if(*Int24bit & 0x00800000)
-		*Int24bit |= 0xFF800000;
-	else
-		*Int24bit &= 0x007FFFFF;
-}
-
-void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
-{
-	uint32_t j = 0;
-
-	for(j=0; j<DMA_SIZE; j++)
-		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
-}
-
-
 //*****************************************************************************
 //
 // PDM interrupt handler.
@@ -365,11 +350,9 @@ void
 example_pdm_isr(void)
 {
 	uint32_t ui32Status;
-	am_hal_pdm_state_t *pState = (am_hal_pdm_state_t *) PDMHandle;
-	am_hal_gpio_output_set(9);
+	//am_hal_pdm_state_t *pState = (am_hal_pdm_state_t *) PDMHandle;
 
 #if DATA_VERIFY
-	//if (pState->ui32BufferPtr == g_sTransferPDM.ui32TargetAddr)
 	if (am_hal_pdm_dma_get_buffer(PDMHandle)== g_sTransferPDM.ui32TargetAddr)
     		am_hal_gpio_output_set(PDM_ISR_TEST_PAD);
 	else
@@ -383,25 +366,7 @@ example_pdm_isr(void)
     am_hal_pdm_interrupt_clear(PDMHandle, ui32Status);
 
 
-#if 1
-#if 1
-	//am_hal_gpio_output_clear(9);
 
-	for (int i = 0; i < DMA_SIZE; i++)
-		 Int24bits_2_Int32bits(&((uint32_t*)pState->ui32BufferPtr)[i]);
-
-	PCM_to_PDM(&((uint32_t*)pState->ui32BufferPtr)[0], &((int32_t*)pState->ui32BufferPtr)[0]);
-
-	//am_hal_gpio_output_set(9);
-#else
-	for (int i = 0; i < DMA_SIZE; i++)
-	{
-		//((uint32_t*)pState->ui32BufferPtr)[i] = (i & 0xFF) | 0xAB0000;
-		//((uint32_t*)pState->ui32BufferPtr)[i] =0x70AA1111;
-		((uint32_t*)pState->ui32BufferPtr)[i] =0x00;
-	}
-#endif
-#endif
 
     //
     // interrupt service routine.
@@ -426,10 +391,6 @@ example_pdm_isr(void)
         g_ui32FifoOVFCount++;
      }
 
-#if DATA_VERIFY
-    //am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
-#endif
-	am_hal_gpio_output_clear(9);
 }
 
 //*****************************************************************************
@@ -473,11 +434,8 @@ void
 am_dspi2s0_isr()
 {
     uint32_t ui32Status;
-    am_hal_gpio_output_set(9);
 #if DATA_VERIFY
-
-    //am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
-    	if (am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX) == g_sTransferPDM.ui32TargetAddr)
+    	if (am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX) ==  g_sTransferI2S.ui32TxTargetAddr)
     		am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
 	else
 		am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
@@ -488,10 +446,7 @@ am_dspi2s0_isr()
     // I2S interrupt service
     am_hal_i2s_interrupt_service(I2SHandle, ui32Status, &g_sI2SConfig);
 
-#if DATA_VERIFY
-    //am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
-#endif
-   am_hal_gpio_output_clear(9);
+    g_bI2STxCMP = true;
 }
 
 //*****************************************************************************
@@ -546,37 +501,21 @@ void i2s_deinit(void *pHandle)
     am_hal_i2s_deinitialize(pHandle);
 }
 
-
-void MCLK_set_up(void)
+//https://en.wikipedia.org/wiki/Two%27s_complement
+void Int24bits_2_Int32bits(uint32_t* Int24bit)
+{     
+	if(*Int24bit & 0x00800000)
+		*Int24bit |= 0xFF800000;
+	else
+		*Int24bit &= 0x007FFFFF;
+}
+extern void two_level_sigma_delta(uint32_t *out, int32_t in, uint16_t len);
+void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 {
-    //
-    // Configure the necessary pins.
-    //
-    am_hal_gpio_pincfg_t sPinCfg =
-    {
-      .GP.cfg_b.eGPOutCfg = 1,
-      .GP.cfg_b.ePullup   = 0
-    };
+	uint32_t j = 0;
 
-    sPinCfg.GP.cfg_b.uFuncSel = AM_HAL_PIN_71_CLKOUT;
-    am_hal_gpio_pinconfig(71, sPinCfg);
-
-	//
-	// Disable before changing the clock
-	//
-	CLKGEN->CLKOUT_b.CKEN = 0;
-
-	//
-	// Set the new clock select
-	//
-	CLKGEN->CLKOUT_b.CKSEL = CLKGEN_CLKOUT_CKSEL_HFRC_DIV2;
-	
-
-	//
-	// Enable as requested.
-	//
-	CLKGEN->CLKOUT_b.CKEN = 1;
-
+	for(j=0; j<DMA_SIZE; j++)
+		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
 }
 
 //*****************************************************************************
@@ -613,7 +552,6 @@ main(void)
 		while(1);
 	}
 	
-    MCLK_set_up();
 #if DATA_VERIFY
     am_hal_gpio_pinconfig(PDM_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
     am_hal_gpio_pinconfig(I2S_ISR_TEST_PAD, am_hal_gpio_pincfg_output);
@@ -633,7 +571,7 @@ main(void)
     // PDM DMA data config:
     //   DMA buffers padded at 16B alignment.
     //
-    uint32_t ui32PDMDataPtr = (uint32_t)((uint32_t)(g_ui32PingPongBuffer + 3) & ~0xF);
+    uint32_t ui32PDMDataPtr = (uint32_t)((uint32_t)(g_ui32PingPongBufferPDM + 3) & ~0xF);
     g_sTransferPDM.ui32TargetAddr = ui32PDMDataPtr;
     g_sTransferPDM.ui32TargetAddrReverse = g_sTransferPDM.ui32TargetAddr + g_sTransferPDM.ui32TotalCount;
 
@@ -659,26 +597,87 @@ main(void)
     //Avoid interrupt coming simultaneously.
     am_util_delay_us(100);
 
+#if 0
     // use the reverser buffer of PDM
     g_sTransferI2S.ui32TxTargetAddr = am_hal_pdm_dma_get_buffer(PDMHandle);
     g_sTransferI2S.ui32TxTargetAddrReverse = (g_sTransferI2S.ui32TxTargetAddr == g_sTransferPDM.ui32TargetAddr)? g_sTransferPDM.ui32TargetAddrReverse: g_sTransferPDM.ui32TargetAddr;
+#else
+	uint32_t ui32I2SDataPtr = (uint32_t)((uint32_t)(g_ui32PingPongBufferI2S + 3) & ~0xF);//DMA buffers padded at 16B alignment. ??(TBD)
+	g_sTransferI2S.ui32TxTargetAddr = ui32I2SDataPtr;
+	g_sTransferI2S.ui32TxTargetAddrReverse = g_sTransferI2S.ui32TxTargetAddr + (g_sTransferI2S.ui32TxTotalCount)*4;
+#endif
     //Start I2S data transaction.
     am_hal_i2s_dma_configure(I2SHandle, &g_sI2SConfig, &g_sTransferI2S);
     am_hal_i2s_dma_transfer_start(I2SHandle, &g_sI2SConfig);
 
     
 
-    //
-    // Loop forever while sleeping.
-    //
-    while (1)
-    {
-        //
-        // Go to Deep Sleep.
-        //
-	//am_hal_gpio_output_clear(9);
-	am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_NORMAL);
-	//am_hal_gpio_output_set(9);
-    }
+	//
+	// Loop forever while sleeping.
+	//
+	while (1)
+	{	
+		uint32_t PDMpINgpONgAddr;
+		uint32_t I2SpINgpONgAddr;
+	
+		if(g_bPDMDataReady)
+		{
+			g_bPDMDataReady = false;
+			PDMpINgpONgAddr = am_hal_pdm_dma_get_buffer(PDMHandle);
+			
+			if (PDMpINgpONgAddr == g_sTransferPDM.ui32TargetAddr)
+				am_hal_gpio_output_set(PDM_ISR_TEST_PAD);
+			else
+				am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
+
+
+#if 1
+			I2SpINgpONgAddr = am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX);
+#if 1
+			//am_hal_gpio_output_clear(9);
+
+			for (int i = 0; i < DMA_SIZE; i++)
+			{
+				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
+			}
+			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((uint32_t*)PDMpINgpONgAddr));
+			//am_util_delay_us(1400);
+			//void *memcpy(void *str1, const void *str2, size_t n)
+			memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
+			//void *memset(void *str, int c, size_t n)
+			//memset((void *)I2SpINgpONgAddr, 0, DMA_SIZE*4);
+
+			//am_hal_gpio_output_set(9);
+#else
+			for (int i = 0; i < DMA_SIZE; i++)
+			{
+				if (I2SpINgpONgAddr == g_sTransferI2S.ui32TxTargetAddr)
+					*(((uint32_t*)I2SpINgpONgAddr)+i) =0x70AA1111;
+				else
+					*(((uint32_t*)I2SpINgpONgAddr)+i) =0x00;
+			}
+#endif
+#endif
+
+
+			
+			
+		}
+
+		
+		if(g_bI2STxCMP)
+		{
+			g_bI2STxCMP = false;
+			I2SpINgpONgAddr = am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX);
+			if (I2SpINgpONgAddr == g_sTransferI2S.ui32TxTargetAddr)
+				am_hal_gpio_output_set(I2S_ISR_TEST_PAD);
+			else
+				am_hal_gpio_output_clear(I2S_ISR_TEST_PAD);
+		}
+
+		am_hal_gpio_output_clear(9);
+		am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_NORMAL);
+		am_hal_gpio_output_set(9);
+	}
 }
 
