@@ -23,11 +23,13 @@ void two_level_sigma_delta(uint32_t *out, int32_t in, uint16_t len)
 			if (first_integrator > 0) 
 			{			
 				first_result = 8388607;
+				//first_result = 2147483647;
 				*(out+i) |= (1 << j);
 			}
 			else
 			{
 				first_result = -8388608;
+				//first_result = -2147483648;
 			}
 		}
 	}

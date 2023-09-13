@@ -64,7 +64,7 @@
 #include "am_mcu_apollo.h"
 #include "am_bsp.h"
 #include "am_util.h"
-#include "SEGGER_RTT.h"
+#include "pcm.h"
 
 //*****************************************************************************
 //
@@ -524,6 +524,20 @@ void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 	for(j=0; j<DMA_SIZE; j++)
 		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
 }
+uint32_t idx = 0;
+void PcmRaw_to_PDM(uint32_t *pdm)
+{
+	int32_t *pcm = ((int32_t *)a_raw) + idx;
+
+	for(uint32_t j=0; j<DMA_SIZE; j++)
+	{
+		two_level_sigma_delta(pdm+j, (*(pcm+j) >> 6), 1);
+	}
+
+	idx += DMA_SIZE;
+	if(idx+DMA_SIZE >= (a_raw_len/4))
+		idx = 0;
+}
 
 //*****************************************************************************
 //
@@ -638,7 +652,7 @@ main(void)
 				am_hal_gpio_output_clear(PDM_ISR_TEST_PAD);
 
 
-#if 1
+
 			I2SpINgpONgAddr = am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX);
 #if 1
 			//am_hal_gpio_output_clear(9);
@@ -647,7 +661,9 @@ main(void)
 			{
 				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
 			}
-			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			//PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			PcmRaw_to_PDM(((uint32_t*)PDMpINgpONgAddr));
+			
 			//am_util_delay_us(1400);
 			//void *memcpy(void *str1, const void *str2, size_t n)
 			memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
@@ -664,7 +680,7 @@ main(void)
 					*(((uint32_t*)I2SpINgpONgAddr)+i) =0x00;
 			}
 #endif
-#endif
+
 
 
 			
