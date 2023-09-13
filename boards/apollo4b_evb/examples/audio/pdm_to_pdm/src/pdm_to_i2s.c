@@ -230,8 +230,8 @@ static const IRQn_Type i2s_interrupts[] =
 };
 
 #if I2S_MODULE == 0
-#define I2S_DATA_OUT_GPIO_FUNC  AM_HAL_PIN_12_I2S0_SDOUT
-#define I2S_DATA_OUT_GPIO_PIN   12
+#define I2S_DATA_OUT_GPIO_FUNC  AM_HAL_PIN_48_I2S0_SDOUT
+#define I2S_DATA_OUT_GPIO_PIN   48
 #define I2S_CLK_GPIO_FUNC   AM_HAL_PIN_11_I2S0_CLK
 #define I2S_CLK_GPIO_PIN    11
 #define I2S_WS_GPIO_FUNC    AM_HAL_PIN_13_I2S0_WS
@@ -407,12 +407,18 @@ i2s_init(void)
     am_hal_gpio_pincfg_t sPinCfg =
     {
       .GP.cfg_b.eGPOutCfg = 1,
-	.GP.cfg_b.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_0P5X,
       .GP.cfg_b.ePullup   = 0
     };
 
+    // All physical (non-virtual) pads support 0P1X and 0P5X.
+    // Only select pads support OP75X and 1P0X.	
+
+    sPinCfg.GP.cfg_b.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_1P0X;
+
     sPinCfg.GP.cfg_b.uFuncSel = I2S_DATA_OUT_GPIO_FUNC;
     am_hal_gpio_pinconfig(I2S_DATA_OUT_GPIO_PIN, sPinCfg);
+
+    sPinCfg.GP.cfg_b.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_0P5X;
 
     sPinCfg.GP.cfg_b.uFuncSel = I2S_CLK_GPIO_FUNC;
     am_hal_gpio_pinconfig(I2S_CLK_GPIO_PIN, sPinCfg);
@@ -641,7 +647,7 @@ main(void)
 			{
 				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
 			}
-			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((uint32_t*)PDMpINgpONgAddr));
+			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
 			//am_util_delay_us(1400);
 			//void *memcpy(void *str1, const void *str2, size_t n)
 			memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
