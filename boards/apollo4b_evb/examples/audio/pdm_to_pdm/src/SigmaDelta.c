@@ -54,7 +54,7 @@ void three_level_sigma_delta(uint32_t *out, int32_t in, uint16_t len)
         static float k2 = 0.2776;
         static float k3 = 1.0267;
         static float g = 0.00153846;
-		float u = ((float) in)/(65536.0);
+	 float u = ((float) (in >> 2))/(8388607.0);
 
         for(i = 0; i < len ; i++)
 		{

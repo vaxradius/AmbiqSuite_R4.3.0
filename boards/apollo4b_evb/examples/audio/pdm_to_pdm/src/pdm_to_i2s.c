@@ -107,7 +107,7 @@
 #endif
 
 // should be padded to 32 samples.
-#define PDM_STREAM_SIZE                320 // 20ms
+#define PDM_STREAM_SIZE                320 
 #define DMA_SIZE                       PDM_STREAM_SIZE
 #define PDM_STREAM_BYTES               (PDM_STREAM_SIZE * 4)
 
@@ -143,7 +143,6 @@ void *PDMHandle;
 am_hal_pdm_config_t g_sPdmConfig =
 {
 
-#if defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
     //
     // Example setting:
     //  1.5MHz PDM CLK OUT:
@@ -157,28 +156,15 @@ am_hal_pdm_config_t g_sPdmConfig =
     .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV3, // 3MHz pdm clock out
     .ui32DecimationRate = 16, //32x2 SR: 48KHz; 24x2 SR: 64KHz; 16x2 SR: 96KHz
 
-#else
-    //
-    // Example setting:
-    //  1.5MHz PDM CLK OUT:
-    //      AM_HAL_PDM_CLK_24MHZ, AM_HAL_PDM_MCLKDIV_1, AM_HAL_PDM_PDMA_CLKO_DIV7
-    //  15.625KHz 24bit Sampling:
-    //      DecimationRate = 48
-    //
-    .ePDMClkSpeed = AM_HAL_PDM_CLK_24MHZ,
-    .eClkDivider = AM_HAL_PDM_MCLKDIV_1,
-    .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV7,
-    .ui32DecimationRate = 48,
-#endif
-
-    .eLeftGain = AM_HAL_PDM_GAIN_P345DB,
-    .eRightGain = AM_HAL_PDM_GAIN_P345DB,
+    .eLeftGain = AM_HAL_PDM_GAIN_P345DB, // Left Right up side down
+    .eRightGain = AM_HAL_PDM_GAIN_P120DB,
     .eStepSize = AM_HAL_PDM_GAIN_STEP_0_26DB,
 
     .bHighPassEnable = AM_HAL_PDM_HIGH_PASS_ENABLE,
     .ui32HighPassCutoff = 0x3,
     .bDataPacking = 0,
     .ePCMChannels = AM_HAL_PDM_CHANNEL_RIGHT,
+    //.ePCMChannels = AM_HAL_PDM_CHANNEL_STEREO,
 
     .bPDMSampleDelay = AM_HAL_PDM_CLKOUT_PHSDLY_NONE,
     .ui32GainChangeDelay = AM_HAL_PDM_CLKOUT_DELAY_NONE,
@@ -522,7 +508,25 @@ void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 	uint32_t j = 0;
 
 	for(j=0; j<DMA_SIZE; j++)
-		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
+		three_level_sigma_delta(pdm+j, *(pcm+j), 1);
+}
+
+
+uint32_t PCM_to_MRAM(uint32_t *pcm)
+{
+	static uint32_t idx = 0;
+	volatile static uint32_t i32ReturnCode = 0xFFFFFFFF;
+
+	if((idx + DMA_SIZE) < 0x100000)
+	{
+		i32ReturnCode = am_hal_mram_main_program(AM_HAL_MRAM_PROGRAM_KEY,
+	                                      							pcm,
+	                                      							(uint32_t *)(0x100000 + idx),
+	                                      							DMA_SIZE);
+		idx += DMA_SIZE;
+	}
+	
+	return i32ReturnCode;
 }
 
 #if 0
@@ -566,6 +570,12 @@ main(void)
     am_hal_cachectrl_enable();
 
     am_bsp_low_power_init();
+
+	    //
+    // Enable floating point.
+    //
+    am_hal_sysctrl_fpu_enable();
+    am_hal_sysctrl_fpu_stacking_enable(true);
 
 	am_util_stdio_printf("Set High Performance (HP) Mode.");
 	ui32retval = am_hal_pwrctrl_mcu_mode_select(AM_HAL_PWRCTRL_MCU_MODE_HIGH_PERFORMANCE);
@@ -659,17 +669,22 @@ main(void)
 #if 1
 			//am_hal_gpio_output_clear(9);
 
+			/*24bits Signed Integer to 32bits Signed Integer*/
 			for (int i = 0; i < DMA_SIZE; i++)
-			{
 				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
-			}
-			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			
+
+			//PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			PCM_to_MRAM(((uint32_t*)PDMpINgpONgAddr));
 			//PcmRaw_to_PDM(((uint32_t*)PDMpINgpONgAddr));
 			
 			//am_util_delay_us(1400);
-			//void *memcpy(void *str1, const void *str2, size_t n)
-			memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
-			//void *memset(void *str, int c, size_t n)
+
+
+			/*SigmaDelta PDM to Speaker*/
+			//memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
+			
+
 			//memset((void *)I2SpINgpONgAddr, 0, DMA_SIZE*4);
 
 			//am_hal_gpio_output_set(9);
