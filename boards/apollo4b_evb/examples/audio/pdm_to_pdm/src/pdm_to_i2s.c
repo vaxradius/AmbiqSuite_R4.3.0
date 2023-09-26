@@ -77,7 +77,7 @@
 // Example parameters.
 //
 //*****************************************************************************
-#define  PDM_MODULE             1
+#define  PDM_MODULE             2
 
 //*****************************************************************************
 //
@@ -153,7 +153,7 @@ am_hal_pdm_config_t g_sPdmConfig =
     //.ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC2ADJ_24_576MHZ,
     .ePDMClkSpeed = AM_HAL_PDM_CLK_HFRC_24MHZ,
     .eClkDivider = AM_HAL_PDM_MCLKDIV_1,
-    .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV3, // 3MHz pdm clock out
+    .ePDMAClkOutDivder = AM_HAL_PDM_PDMA_CLKO_DIV1, //DIV3:  3MHz pdm clock out ; DIV2:  4MHz pdm clock out;DIV1:  6MHz pdm clock out;
     .ui32DecimationRate = 16, //32x2 SR: 48KHz; 24x2 SR: 64KHz; 16x2 SR: 96KHz
 
     .eLeftGain = AM_HAL_PDM_GAIN_P345DB, // Left Right up side down
@@ -256,8 +256,8 @@ static am_hal_i2s_data_format_t g_sI2SDataConfig =
 //*****************************************************************************
 static am_hal_i2s_config_t g_sI2SConfig =
 {
-    .eClock               = eAM_HAL_I2S_CLKSEL_HFRC_3MHz,
-  .eDiv3                = 0,
+    .eClock               = eAM_HAL_I2S_CLKSEL_HFRC_6MHz,
+  .eDiv3                = 0, //0+HFRC_3MHz=3MHz ; 1+HFRC_12MHz=4MHz; 0+HFRC_6MHz=6MHz
   .eMode                = AM_HAL_I2S_IO_MODE_MASTER,
    .eXfer                = AM_HAL_I2S_XFER_TX,
   .eData                = &g_sI2SDataConfig,
@@ -508,7 +508,7 @@ void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 	uint32_t j = 0;
 
 	for(j=0; j<DMA_SIZE; j++)
-		three_level_sigma_delta(pdm+j, *(pcm+j), 1);
+		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
 }
 
 
@@ -622,13 +622,9 @@ main(void)
     NVIC_EnableIRQ(i2s_interrupts[I2S_MODULE]);
     am_hal_interrupt_master_enable();
 
-    //
-    // Start PDM streaming.
-    //
-    am_hal_pdm_dma_start(PDMHandle, &g_sTransferPDM);
 
-    //Avoid interrupt coming simultaneously.
-    am_util_delay_us(100);
+
+
 
 #if 0
     // use the reverser buffer of PDM
@@ -642,6 +638,13 @@ main(void)
     //Start I2S data transaction.
     am_hal_i2s_dma_configure(I2SHandle, &g_sI2SConfig, &g_sTransferI2S);
     am_hal_i2s_dma_transfer_start(I2SHandle, &g_sI2SConfig);
+
+    //Avoid interrupt coming simultaneously.
+    am_util_delay_us(100);
+	    //
+    // Start PDM streaming.
+    //
+    am_hal_pdm_dma_start(PDMHandle, &g_sTransferPDM);
 
     
 
@@ -674,15 +677,19 @@ main(void)
 				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
 			
 
-			//PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
-			PCM_to_MRAM(((uint32_t*)PDMpINgpONgAddr));
+			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			//PCM_to_MRAM(((uint32_t*)PDMpINgpONgAddr));
 			//PcmRaw_to_PDM(((uint32_t*)PDMpINgpONgAddr));
 			
-			//am_util_delay_us(1400);
+			//am_util_delay_us(1352); // 2 level SigmaDelta
+			//am_util_delay_us(2603); // 3 level SigmaDelta
+
+			if(I2SpINgpONgAddr != am_hal_i2s_dma_get_buffer(I2SHandle, AM_HAL_I2S_XFER_TX))
+				while(1); //hHazards
 
 
 			/*SigmaDelta PDM to Speaker*/
-			//memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
+			memcpy((void *)I2SpINgpONgAddr,(const void *) PDMpINgpONgAddr, DMA_SIZE*4);
 			
 
 			//memset((void *)I2SpINgpONgAddr, 0, DMA_SIZE*4);
