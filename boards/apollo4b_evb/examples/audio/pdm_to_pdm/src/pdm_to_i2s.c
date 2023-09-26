@@ -64,7 +64,7 @@
 #include "am_mcu_apollo.h"
 #include "am_bsp.h"
 #include "am_util.h"
-#include "pcm.h"
+//#include "pcm.h"
 
 //*****************************************************************************
 //
@@ -524,6 +524,8 @@ void PCM_to_PDM(uint32_t *pdm, int32_t *pcm)
 	for(j=0; j<DMA_SIZE; j++)
 		two_level_sigma_delta(pdm+j, *(pcm+j), 1);
 }
+
+#if 0
 uint32_t idx = 0;
 void PcmRaw_to_PDM(uint32_t *pdm)
 {
@@ -538,7 +540,7 @@ void PcmRaw_to_PDM(uint32_t *pdm)
 	if(idx+DMA_SIZE >= (a_raw_len/4))
 		idx = 0;
 }
-
+#endif
 //*****************************************************************************
 //
 // Main
@@ -661,8 +663,8 @@ main(void)
 			{
 				 Int24bits_2_Int32bits(((uint32_t*)PDMpINgpONgAddr)+i);
 			}
-			//PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
-			PcmRaw_to_PDM(((uint32_t*)PDMpINgpONgAddr));
+			PCM_to_PDM(((uint32_t*)PDMpINgpONgAddr), ((int32_t*)PDMpINgpONgAddr));
+			//PcmRaw_to_PDM(((uint32_t*)PDMpINgpONgAddr));
 			
 			//am_util_delay_us(1400);
 			//void *memcpy(void *str1, const void *str2, size_t n)
